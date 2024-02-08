@@ -58,10 +58,36 @@ public class Test {
 
         evaluateSKMSmartContract( 10 );
 
+        //evaluateOnlyModTemp( 10 );
+
 
         csvWriter.flush();
         csvWriter.close();
         web3j.shutdown();
+    }
+
+    public static void evaluateOnlyModTemp( int numIterations ) throws Exception {
+        SKM_SC contract;
+        List<SKM_SC> SKM_SC_list = new ArrayList<>();
+
+        for ( int i = 0; i < numIterations; i++) {
+            contract = skmSCManager.newSKM_SC(entities.transactionManagerSmartphoneApp);
+            SKM_SC_list.add( contract );
+        }
+
+        List<Integer> repeats = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+
+        for ( int i=0; i < repeats.size(); i++ ){
+            evaluateAddDevice( SKM_SC_list.get( i ), repeats.get( i ) );
+        }
+
+        for ( int i = 0; i < repeats.size(); i++ ){
+            evaluateModTemp( SKM_SC_list.get( i ), numIterations );
+            csvWriter.append( repeats.get(i) + ", " + skmSCManager.gasUsed + ", " + skmSCManager.gasUsed / numIterations + "\n" );
+            System.out.println( "ModTemp" + repeats.get(i) + "Devices," + numIterations + "," + skmSCManager.gasUsed + "," + skmSCManager.gasUsed / numIterations + "\n" );
+        }
+
+
     }
 
     public static void evaluateSKMSmartContract( int numIterations ) throws Exception {
@@ -78,8 +104,8 @@ public class Test {
         csvWriter.append( "NewSKM_SC," + numIterations + "," + skmSCManager.gasUsed + "," + skmSCManager.gasUsed / numIterations + "\n" );
         System.out.println( "NewSKM_SC," + numIterations + "," + skmSCManager.gasUsed + "," + skmSCManager.gasUsed / numIterations + "\n" );
 
-        List<Integer> repeats = Arrays.asList(1, 2, 3, 6 ,9);
-        List<Integer> numKeys = Arrays.asList(1, 5, 10, 20);
+        List<Integer> repeats = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+        List<Integer> numKeys = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20);
 
         for ( int j=0; j < repeats.size(); j++ ){
             evaluateAddDevice( SKM_SC_list.get( j ), repeats.get( j ) );
@@ -149,6 +175,7 @@ public class Test {
 
     public static void evaluateModTemp(  SKM_SC contract, int numIterations ){
         System.out.println("Mod Temporal value");
+        skmSCManager.gasUsed = 0;
         for (int i = 0; i < numIterations; i++ ) {
             skmSCManager.storeTemp( contract, new BigInteger( randomHash(), 16 ) );
         }
